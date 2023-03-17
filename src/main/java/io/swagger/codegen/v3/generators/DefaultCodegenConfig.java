@@ -1387,8 +1387,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                                     .getName();
                         }
                         if (modelImplCnt++ > 1) {
-                            LOGGER.warn(
-                                    "More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
+//                            LOGGER.warn(
+//                                    "More than one inline schema specified in allOf:. Only the first one is recognized. All others are ignored.");
                             break; // only one ModelImpl with discriminator
                                    // allowed in allOf
                         }
@@ -2913,6 +2913,13 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
      */
     protected String getOrGenerateOperationId(Operation operation, String path, String httpMethod) {
         String operationId = operation.getOperationId();
+
+        // remove everything before a slash
+        int i = operationId.lastIndexOf('/');
+        if (i > 0) {
+            operationId = operationId.substring(i+1);
+        }
+
         if (StringUtils.isBlank(operationId)) {
             String tmpPath = path;
             tmpPath = tmpPath.replaceAll("\\{", "");

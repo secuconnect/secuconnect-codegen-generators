@@ -1,0 +1,156 @@
+package {{package}};
+
+import com.google.gson.reflect.TypeToken;
+import {{invokerPackage}}.*;
+{{#imports}}import {{import}};
+{{/imports}}
+import okhttp3.Call;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+{{#operations}}
+public class {{classname}} {
+    private ApiClient apiClient;
+
+    public {{classname}}() {
+        this(Environment.getGlobalEnv().getApiClient());
+    }
+
+    public {{classname}}(ApiClient apiClient) {
+        this.apiClient = apiClient;
+    }
+
+    public ApiClient getApiClient() {
+        return apiClient;
+    }
+
+    public void setApiClient(ApiClient apiClient) {
+        this.apiClient = apiClient;
+    }
+    {{#operation}}
+
+    {{#contents}}
+    /**
+     * Build call for {{operationId}}{{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/javaSdkVersion3}}{{/parameters}}
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+    {{#isDeprecated}}
+     * @deprecated
+    {{/isDeprecated}}
+    {{#externalDocs}}
+     * {{description}}
+     * @see <a href="{{url}}">{{summary}} Documentation</a>
+    {{/externalDocs}}
+     */
+    public Call {{operationId}}Call({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{{dataType}}} {{paramName}}{{/javaSdkVersion3}}{{/parameters}}) throws ApiException {
+        Object localVarPostBody = {{^isForm}}{{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}}{{/isForm}}{{#isForm}}null{{/isForm}};
+
+        // create path and map variables
+        String localVarPath = "{{{path}}}"{{#pathParams}}
+            .replaceAll("\\{" + "{{baseName}}" + "\\}", apiClient.escapeString({{{paramName}}}.toString())){{/pathParams}};
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();{{#queryParams}}{{#javaSdkVersion3 paramName privateSdk}}
+        if ({{paramName}} != null)
+        {{#collectionFormat}}localVarCollectionQueryParams.addAll(apiClient.parameterToPairs("{{{collectionFormat}}}", {{/collectionFormat}}{{^collectionFormat}}localVarQueryParams.addAll(apiClient.parameterToPair({{/collectionFormat}}"{{baseName}}", {{paramName}}));{{/javaSdkVersion3}}{{/queryParams}}
+
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();{{#headerParams}}
+        if ({{paramName}} != null)
+        localVarHeaderParams.put("{{baseName}}", apiClient.parameterToString({{paramName}}));{{/headerParams}}
+
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+        {{#isForm}}
+        {{#formParams}}
+        if ({{paramName}} != null)
+        localVarFormParams.put("{{baseName}}", {{paramName}});
+        {{/formParams}}
+        {{/isForm}}
+
+        final String[] localVarAccepts = {
+            {{#produces}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/produces}}
+        };
+        final String localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) localVarHeaderParams.put("Accept", localVarAccept);
+
+        final String[] localVarContentTypes = {
+            {{#consumes}}"{{{mediaType}}}"{{#hasMore}}, {{/hasMore}}{{/consumes}}
+        };
+        final String localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
+        localVarHeaderParams.put("Content-Type", localVarContentType);
+
+        String[] localVarAuthNames = new String[] { {{#authMethods}}"{{name}}"{{#has this 'more'}}, {{/has}}{{/authMethods}} };
+        return apiClient.buildCall(localVarPath, "{{httpMethod}}", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarFormParams, localVarAuthNames);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Call {{operationId}}ValidateBeforeCall({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{{dataType}}} {{paramName}}{{/javaSdkVersion3}}{{/parameters}}) throws ApiException {
+        {{#parameters}}{{#required}}
+        // verify the required parameter '{{paramName}}' is set
+        if ({{paramName}} == null) {
+            throw new ApiException("Missing the required parameter '{{paramName}}' when calling {{operationId}}(Async)");
+        }
+        {{/required}}{{/parameters}}
+
+        return {{operationId}}Call({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{paramName}}{{/javaSdkVersion3}}{{/parameters}});
+    }
+
+    /**
+     * {{summary}}
+     * {{notes}}{{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/javaSdkVersion3}}{{/parameters}}{{#returnType}}
+     * @return {{returnType}}{{/returnType}}
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+        {{#externalDocs}}
+     * {{description}}
+     * @see <a href="{{url}}">{{summary}} Documentation</a>
+        {{/externalDocs}}
+     */
+    public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{{dataType}}} {{paramName}}{{/javaSdkVersion3}}{{/parameters}}) throws ApiException {
+        {{#returnType}}ApiResponse<{{{returnType}}}> resp = {{/returnType}}{{operationId}}WithHttpInfo({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{paramName}}{{/javaSdkVersion3}}{{/parameters}});{{#returnType}}
+        return resp.getData();{{/returnType}}
+    }
+
+    /**
+     * {{summary}}
+     * {{notes}}{{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/javaSdkVersion3}}{{/parameters}}
+     * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+        {{#externalDocs}}
+     * {{description}}
+     * @see <a href="{{url}}">{{summary}} Documentation</a>
+        {{/externalDocs}}
+     */
+    public ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{{dataType}}} {{paramName}}{{/javaSdkVersion3}}{{/parameters}}) throws ApiException {
+        Call call = {{operationId}}ValidateBeforeCall({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{paramName}}{{/javaSdkVersion3}}{{/parameters}});
+        {{#returnType}}Type localVarReturnType = new TypeToken<{{{returnType}}}>(){}.getType();
+        return apiClient.execute(call, localVarReturnType);{{/returnType}}{{^returnType}}return apiClient.execute(call);{{/returnType}}
+    }
+
+    /**
+     * {{summary}} (asynchronously)
+     * {{notes}}{{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}
+     * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}}{{#defaultValue}} (default to {{{.}}}){{/defaultValue}}{{/required}}{{/javaSdkVersion3}}{{/parameters}}
+     * @param callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+        {{#externalDocs}}
+     * {{description}}
+     * @see <a href="{{url}}">{{summary}} Documentation</a>
+        {{/externalDocs}}
+     */
+    public Call {{operationId}}Async({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{{dataType}}} {{paramName}}, {{/javaSdkVersion3}}{{/parameters}}final ApiCallback<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> callback) throws ApiException {
+        Call call = {{operationId}}ValidateBeforeCall({{#parameters}}{{#javaSdkVersion3 paramName privateSdk}}{{^@first}}, {{/@first}}{{paramName}}{{/javaSdkVersion3}}{{/parameters}});
+        {{#returnType}}Type localVarReturnType = new TypeToken<{{{returnType}}}>(){}.getType();
+        apiClient.executeAsync(call, localVarReturnType, callback);{{/returnType}}{{^returnType}}apiClient.executeAsync(call, callback);{{/returnType}}
+        return call;
+    }
+    {{/contents}}
+    {{/operation}}
+}
+{{/operations}}

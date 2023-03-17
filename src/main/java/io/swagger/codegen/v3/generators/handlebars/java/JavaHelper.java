@@ -4,7 +4,6 @@ import com.github.jknack.handlebars.Options;
 import io.swagger.codegen.v3.CodegenConstants;
 import io.swagger.codegen.v3.CodegenModel;
 import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.generators.java.JavaClientCodegen;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ public class JavaHelper {
 
     public CharSequence getClassDefinition(CodegenModel codegenModel, Options options) throws IOException {
         final Boolean serializableModel = options.get(CodegenConstants.SERIALIZABLE_MODEL) != null ? options.get(CodegenConstants.SERIALIZABLE_MODEL) : Boolean.FALSE;
-        final Boolean parceableModel = options.get(JavaClientCodegen.PARCELABLE_MODEL) != null ? options.get(JavaClientCodegen.PARCELABLE_MODEL) : Boolean.FALSE;
         final StringBuilder builder = new StringBuilder();
         builder.append(codegenModel.classname);
         if (StringUtils.isNotBlank(codegenModel.parent)) {
@@ -25,12 +23,8 @@ public class JavaHelper {
             builder.append("extends ");
             builder.append(codegenModel.parent);
         }
-        if (parceableModel && serializableModel) {
-            builder.append(" implements Parcelable, Serializable");
-        } else {
-            if (serializableModel) {
-                builder.append(" implements Serializable");
-            }
+        if (serializableModel) {
+            builder.append(" implements Serializable");
         }
         return builder.toString();
     }
@@ -62,12 +56,7 @@ public class JavaHelper {
         }
         final StringBuilder builder = new StringBuilder();
 
-        boolean supportJava6 = Boolean.valueOf(String.valueOf(templateData.get("supportJava6")));
-        if (supportJava6) {
-            builder.append("import org.apache.commons.lang3.ObjectUtils;\n");
-        } else {
-            builder.append("import java.util.Objects;\n");
-        }
+        builder.append("import java.util.Objects;\n");
 
         for (Map<String, String> importMap : imports) {
             builder.append("import ");
