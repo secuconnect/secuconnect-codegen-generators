@@ -1,0 +1,19 @@
+package {{package}};
+
+{{^x-is-composed-model}}
+{{#imports}}
+import {{import}};
+{{/imports}}
+import java.util.Objects;
+{{/x-is-composed-model}}
+{{#models}}
+{{#model}}
+{{#isComposedModel}}
+{{>interface}}
+{{/isComposedModel}}
+{{^isComposedModel}}
+{{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
+{{/isComposedModel}}
+{{/model}}
+{{/models}}
+

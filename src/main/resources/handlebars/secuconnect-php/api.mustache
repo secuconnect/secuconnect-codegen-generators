@@ -1,0 +1,290 @@
+<?php
+
+namespace {{apiPackage}};
+
+use {{invokerPackage}}\ApiClient;
+use {{invokerPackage}}\ApiException;
+use {{invokerPackage}}\Authentication\Authenticator;
+
+/**
+ * {{classname}}
+ *
+ * @category Class
+ * @package  {{invokerPackage}}
+ * @author   Swagger Codegen team
+ * @link     https://github.com/swagger-api/swagger-codegen
+ */
+{{#operations}}class {{classname}}
+{
+    /**
+     * API Client
+     *
+     * @var ApiClient instance of the ApiClient
+     */
+    protected $apiClient;
+
+    /**
+     * Constructor
+     *
+     * @param ApiClient|null $apiClient The api client to use
+     */
+    public function __construct(ApiClient $apiClient = null)
+    {
+        if ($apiClient === null) {
+            $apiClient = new ApiClient();
+        }
+
+        $this->apiClient = $apiClient;
+    }
+
+    /**
+     * Get API client
+     *
+     * @return ApiClient get the API client
+     */
+    public function getApiClient()
+    {
+        return $this->apiClient;
+    }
+
+    /**
+     * Set the API client
+     *
+     * @param ApiClient $apiClient set the API client
+     *
+     * @return {{classname}}
+     */
+    public function setApiClient(ApiClient $apiClient)
+    {
+        $this->apiClient = $apiClient;
+        return $this;
+    }
+    {{#operation}}
+{{#contents}}
+
+    /**
+     * Operation {{{operationId}}}
+{{#summary}}
+     *
+     * {{{summary}}}
+{{/summary}}
+     *
+{{#description}}
+     * {{.}}
+     *
+{{/description}}
+{{#parameters}}
+     * @param {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}}{{^description}} {{paramName}}{{/description}} {{#required}}(required){{/required}}{{^required}}{{#defaultValue}}(optional, default to {{{.}}}){{/defaultValue}}{{/required}}
+{{/parameters}}
+     * @throws ApiException on non-2xx response
+     * @return {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}
+     */
+    public function {{operationId}}({{#parameters}}${{paramName}}{{^required}}{{#notEquals 'body' paramName}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/notEquals}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
+    {
+        {{#returnType}}list($response) = {{/returnType}}$this->{{operationId}}WithHttpInfo({{#parameters}}${{paramName}}{{#hasMore}}, {{/hasMore}}{{/parameters}});{{#returnType}}
+        return $response;{{/returnType}}
+    }
+
+    /**
+     * Operation {{{operationId}}}WithHttpInfo
+{{#summary}}
+     *
+     * {{{summary}}}
+{{/summary}}
+     *
+{{#description}}
+     * {{.}}
+     *
+{{/description}}
+{{#parameters}}
+     * @param {{dataType}} ${{paramName}}{{#description}} {{description}}{{/description}} {{#required}}(required){{/required}}{{^required}}{{#defaultValue}}(optional, default to {{{.}}}){{/defaultValue}}{{/required}}
+{{/parameters}}
+     * @throws ApiException on non-2xx response
+     * @return array of {{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}null{{/returnType}}, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function {{operationId}}WithHttpInfo({{#parameters}}${{paramName}}{{^required}}{{#notEquals 'body' paramName}} = {{#defaultValue}}'{{{.}}}'{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}}{{/notEquals}}{{/required}}{{#hasMore}}, {{/hasMore}}{{/parameters}})
+    {
+        {{#parameters}}
+        {{#required}}{{#notEquals 'body' paramName}}
+        // verify the required parameter '{{paramName}}' is set
+        if (${{paramName}} === null || (is_array(${{paramName}}) && count(${{paramName}}) === 0)) {
+            throw new \InvalidArgumentException(
+                'Missing the required parameter ${{paramName}} when calling {{operationId}}'
+            );
+        }
+        {{/notEquals}}{{/required}}
+        {{#hasValidation}}
+        {{#maxLength}}
+        if ({{^required}}!is_null(${{paramName}}) && {{/required}}(strlen(${{paramName}}) > {{maxLength}})) {
+            throw new \InvalidArgumentException('invalid length for "${{paramName}}" when calling {{classname}}.{{operationId}}, must be smaller than or equal to {{maxLength}}.');
+        }
+        {{/maxLength}}
+        {{#minLength}}
+        if ({{^required}}!is_null(${{paramName}}) && {{/required}}(strlen(${{paramName}}) < {{minLength}})) {
+            throw new \InvalidArgumentException('invalid length for "${{paramName}}" when calling {{classname}}.{{operationId}}, must be bigger than or equal to {{minLength}}.');
+        }
+        {{/minLength}}
+        {{#maximum}}
+        if ({{^required}}!is_null(${{paramName}}) && {{/required}}(${{paramName}} >{{#exclusiveMaximum}}={{/exclusiveMaximum}} {{maximum}})) {
+            throw new \InvalidArgumentException('invalid value for "${{paramName}}" when calling {{classname}}.{{operationId}}, must be smaller than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}{{maximum}}.');
+        }
+        {{/maximum}}
+        {{#minimum}}
+        if ({{^required}}!is_null(${{paramName}}) && {{/required}}(${{paramName}} <{{#exclusiveMinimum}}={{/exclusiveMinimum}} {{minimum}})) {
+            throw new \InvalidArgumentException('invalid value for "${{paramName}}" when calling {{classname}}.{{operationId}}, must be bigger than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}{{minimum}}.');
+        }
+        {{/minimum}}
+        {{#pattern}}
+        if ({{^required}}!is_null(${{paramName}}) && {{/required}}!preg_match("{{{pattern}}}", ${{paramName}})) {
+            throw new \InvalidArgumentException("invalid value for \"{{paramName}}\" when calling {{classname}}.{{operationId}}, must conform to the pattern {{{pattern}}}.");
+        }
+        {{/pattern}}
+        {{#maxItems}}
+        if ({{^required}}!is_null(${{paramName}}) && {{/required}}(count(${{paramName}}) > {{maxItems}})) {
+            throw new \InvalidArgumentException('invalid value for "${{paramName}}" when calling {{classname}}.{{operationId}}, number of items must be less than or equal to {{maxItems}}.');
+        }
+        {{/maxItems}}
+        {{#minItems}}
+        if ({{^required}}!is_null(${{paramName}}) && {{/required}}(count(${{paramName}}) < {{minItems}})) {
+            throw new \InvalidArgumentException('invalid value for "${{paramName}}" when calling {{classname}}.{{operationId}}, number of items must be greater than or equal to {{minItems}}.');
+        }
+        {{/minItems}}
+
+        {{/hasValidation}}
+        {{/parameters}}
+        // parse inputs
+        $resourcePath = "{{{path}}}";
+        $httpBody = '';
+        $queryParams = [];
+        $headerParams = [];
+        $formParams = [];
+        $_header_accept = $this->apiClient->selectHeaderAccept([{{#produces}}'{{{mediaType}}}'{{#hasMore}}, {{/hasMore}}{{/produces}}]);
+        if (!is_null($_header_accept)) {
+            $headerParams['Accept'] = $_header_accept;
+        }
+        $headerParams['Content-Type'] = $this->apiClient->selectHeaderContentType([{{#consumes}}'{{{mediaType}}}'{{#hasMore}}, {{/hasMore}}{{/consumes}}]);
+
+        {{#queryParams}}
+        // query params
+        {{#collectionFormat}}
+        if (is_array(${{paramName}})) {
+            ${{paramName}} = $this->apiClient->getSerializer()->serializeCollection(${{paramName}}, '{{collectionFormat}}', true);
+        }
+        {{/collectionFormat}}
+        if (${{paramName}} !== null) {
+            $queryParams['{{baseName}}'] = $this->apiClient->getSerializer()->toQueryValue(${{paramName}});
+        }
+        {{/queryParams}}
+        {{#headerParams}}
+        // header params
+        {{#collectionFormat}}
+        if (is_array(${{paramName}})) {
+            ${{paramName}} = $this->apiClient->getSerializer()->serializeCollection(${{paramName}}, '{{collectionFormat}}');
+        }
+        {{/collectionFormat}}
+        if (${{paramName}} !== null) {
+            $headerParams['{{baseName}}'] = $this->apiClient->getSerializer()->toHeaderValue(${{paramName}});
+        }
+        {{/headerParams}}
+        {{#pathParams}}
+        // path params
+        {{#collectionFormat}}
+        if (is_array(${{paramName}})) {
+            ${{paramName}} = $this->apiClient->getSerializer()->serializeCollection(${{paramName}}, '{{collectionFormat}}');
+        }
+        {{/collectionFormat}}
+        if (${{paramName}} !== null) {
+            $resourcePath = str_replace(
+                "{" . "{{baseName}}" . "}",
+                $this->apiClient->getSerializer()->toPathValue(${{paramName}}),
+                $resourcePath
+            );
+        }
+        {{/pathParams}}
+        {{#formParams}}
+        // form params
+        if (${{paramName}} !== null) {
+            {{#isBinary}}
+            // PHP 5.5 introduced a CurlFile object that deprecates the old @filename syntax
+            // See: https://wiki.php.net/rfc/curl-file-upload
+            if (function_exists('curl_file_create')) {
+                $formParams['{{baseName}}'] = curl_file_create($this->apiClient->getSerializer()->toFormValue(${{paramName}}));
+            } else {
+                $formParams['{{baseName}}'] = '@' . $this->apiClient->getSerializer()->toFormValue(${{paramName}});
+            }
+            {{/isBinary}}
+            {{^isBinary}}
+            $formParams['{{baseName}}'] = $this->apiClient->getSerializer()->toFormValue(${{paramName}});
+            {{/isBinary}}
+        }
+        {{/formParams}}
+        {{#bodyParams}}
+        // body params
+        $_tempBody = null;
+        if (isset(${{paramName}})) {
+            $_tempBody = ${{paramName}};
+        }
+        {{/bodyParams}}
+
+        // for model (json/xml)
+        if (isset($_tempBody)) {
+            $httpBody = $_tempBody; // $_tempBody is the method argument, if present
+        } elseif (count($formParams) > 0) {
+            $httpBody = $formParams; // for HTTP post (form)
+        }
+        for ($retries = 0; ; $retries++) {
+
+            {{#authMethods}}
+            // this endpoint requires OAuth (access token)
+            if (strlen($this->apiClient->getConfig()->getAccessToken()) !== 0) {
+                $headerParams['Authorization'] = 'Bearer ' . $this->apiClient->getConfig()->getAccessToken();
+            }
+            {{/authMethods}}
+
+            // make the API Call
+            try {
+                list($response, $statusCode, $httpHeader) = $this->apiClient->callApi(
+                    $resourcePath,
+                    '{{httpMethod}}',
+                    $queryParams,
+                    $httpBody,
+                    $headerParams,
+                    {{#returnType}}
+                    '{{returnType}}',
+                    {{/returnType}}
+                    {{^returnType}}
+                    null,
+                    {{/returnType}}
+                    '{{{path}}}'
+                );
+
+                {{#returnType}}
+                return [$this->apiClient->getSerializer()->deserialize($response, '{{returnType}}', $httpHeader), $statusCode, $httpHeader];
+                {{/returnType}}
+                {{^returnType}}
+                return [null, $statusCode, $httpHeader];
+                {{/returnType}}
+            } catch (ApiException $e) {
+                switch ($e->getCode()) {
+                {{#responses}}
+                    {{#dataType}}{{#defaultStatus code}}{{#authMethods}}case 401:
+                        if ($retries < 1) {
+                            Authenticator::reauthenticate();
+                            continue 2;
+                        }
+                    {{/authMethods}}default:{{else}}case {{code}}:{{/defaultStatus}}
+                        $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '{{dataType}}', $e->getResponseHeaders());
+                        $e->setResponseObject($data);
+                        break;
+                    {{/dataType}}
+                {{/responses}}
+                }
+
+                throw $e;
+            }
+        }
+    }
+    {{/contents}}
+    {{/operation}}
+}
+{{/operations}}
