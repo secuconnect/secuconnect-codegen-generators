@@ -28,26 +28,9 @@ import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBoo
 
 public abstract class AbstractJavaCodegen extends AbstractCodegen {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractJavaCodegen.class);
-    public static final String JAVA8_MODE = "java8";
-    public static final String JAVA11_MODE = "java11";
-
-    protected String dateLibrary = "java11";
-    protected boolean java8Mode = true;
-    protected boolean java11Mode = true;
-    protected String invokerPackage = "io.swagger";
-    protected String artifactId = "swagger-java";
+    protected String invokerPackage = "com.secuconnect";
+    protected String artifactId = "secuconnect-java-sdk";
     protected String artifactVersion = "1.0.0";
-    protected String artifactUrl = "https://github.com/swagger-api/swagger-codegen";
-    protected String artifactDescription = "Swagger Java";
-    protected String developerName = "Swagger";
-    protected String developerEmail = "apiteam@swagger.io";
-    protected String developerOrganization = "Swagger";
-    protected String developerOrganizationUrl = "http://swagger.io";
-    protected String scmConnection = "scm:git:git@github.com:swagger-api/swagger-codegen.git";
-    protected String scmDeveloperConnection = "scm:git:git@github.com:swagger-api/swagger-codegen.git";
-    protected String scmUrl = "https://github.com/swagger-api/swagger-codegen";
-    protected String licenseName = "Unlicense";
-    protected String licenseUrl = "http://unlicense.org";
     protected String projectFolder = "src" + File.separator + "main";
     protected String projectTestFolder = "src" + File.separator + "test";
     protected String sourceFolder = projectFolder + File.separator + "java";
@@ -147,16 +130,7 @@ public abstract class AbstractJavaCodegen extends AbstractCodegen {
 
         this.sanitizeConfig();
 
-        // optional jackson mappings for BigDecimal support
-        importMapping.put("ToStringSerializer", "com.fasterxml.jackson.databind.ser.std.ToStringSerializer");
-        importMapping.put("JsonSerialize", "com.fasterxml.jackson.databind.annotation.JsonSerialize");
         importMapping.put("Schema", "io.swagger.v3.oas.annotations.media.Schema");
-        importMapping.put("JsonProperty", "com.fasterxml.jackson.annotation.JsonProperty");
-        importMapping.put("JsonSubTypes", "com.fasterxml.jackson.annotation.JsonSubTypes");
-        importMapping.put("JsonTypeInfo", "com.fasterxml.jackson.annotation.JsonTypeInfo");
-        importMapping.put("JsonCreator", "com.fasterxml.jackson.annotation.JsonCreator");
-        importMapping.put("JsonValue", "com.fasterxml.jackson.annotation.JsonValue");
-        importMapping.put("JsonTypeId", "com.fasterxml.jackson.annotation.JsonTypeId");
         importMapping.put("SerializedName", "com.google.gson.annotations.SerializedName");
         importMapping.put("TypeAdapter", "com.google.gson.TypeAdapter");
         importMapping.put("JsonAdapter", "com.google.gson.annotations.JsonAdapter");
@@ -166,9 +140,6 @@ public abstract class AbstractJavaCodegen extends AbstractCodegen {
         importMapping.put("Object", "java.lang.Object"); // TODO check if needed
         importMapping.put("Objects", "java.util.Objects");
         importMapping.put("StringUtil", invokerPackage + ".StringUtil");
-        // import JsonCreator if JsonProperty is imported
-        // used later in recursive import in postProcessingModels
-        importMapping.put("com.fasterxml.jackson.annotation.JsonProperty", "com.fasterxml.jackson.annotation.JsonCreator");
     }
 
     private void sanitizeConfig() {
@@ -571,13 +542,6 @@ public abstract class AbstractJavaCodegen extends AbstractCodegen {
     @Override
     public CodegenModel fromModel(String name, Schema schema, Map<String, Schema> allSchemas) {
         CodegenModel codegenModel = super.fromModel(name, schema, allSchemas);
-//        if(codegenModel.description != null) {
-//            codegenModel.imports.add("Schema");
-//        }
-        if (codegenModel.discriminator != null && additionalProperties.containsKey("jackson")) {
-            codegenModel.imports.add("JsonSubTypes");
-            codegenModel.imports.add("JsonTypeInfo");
-        }
         boolean hasEnums = getBooleanValue(codegenModel, HAS_ENUMS_EXT_NAME);
         if (allSchemas != null && codegenModel.parentSchema != null && hasEnums) {
             final Schema parentModel = allSchemas.get(codegenModel.parentSchema);
@@ -612,16 +576,8 @@ public abstract class AbstractJavaCodegen extends AbstractCodegen {
             model.imports.add("HashMap");
         }
 
-//        boolean isEnum = getBooleanValue(model, IS_ENUM_EXT_NAME);
-//        if(!BooleanUtils.toBoolean(isEnum)) {
-            // needed by all pojos, but not enums
-//            model.imports.add("Schema");
-//        }
         if (model.discriminator != null && model.discriminator.getPropertyName().equals(property.baseName)) {
             property.vendorExtensions.put("x-is-discriminator-property", true);
-            if (additionalProperties.containsKey("jackson")) {
-                model.imports.add("JsonTypeId");
-            }
         }
     }
 
@@ -642,17 +598,21 @@ public abstract class AbstractJavaCodegen extends AbstractCodegen {
                 }
                 boolean hasConflict = parentModel.vars.stream()
                     .anyMatch(parentProperty -> parentProperty.name.equals(codegenProperty.name) && !parentProperty.datatype.equals(codegenProperty.datatype));
-//
-//                    .anyMatch(parentProperty ->
-//                        (parentProperty.name.equals(codegenProperty.name) ||
-//                            parentProperty.getGetter().equals(codegenProperty.getGetter()) ||
-//                            parentProperty.getSetter().equals(codegenProperty.getSetter()) &&
-//                        !parentProperty.datatype.equals(codegenProperty.datatype)));
                 if (hasConflict) {
                     codegenProperty.name = toVarName(codegenModel.name + "_" + codegenProperty.name);
                     codegenProperty.nameInCamelCase = camelize(codegenProperty.name, false);
                     codegenProperty.getter = toGetter(codegenProperty.name);
                     codegenProperty.setter = toSetter(codegenProperty.name);
+                    break;
+                }
+
+                boolean isOverwritten = parentModel.vars.stream()
+                    .anyMatch(parentProperty ->
+                        parentProperty.getName().equals(codegenProperty.getName())
+                    );
+                if (isOverwritten) {
+                    codegenProperty.vendorExtensions.put("x-is-collection-format-multi", true);
+                    codegenModel.vendorExtensions.put("x-has-collection-format-multi", true);
                     break;
                 }
                 parentModel = parentModel.parentModel;

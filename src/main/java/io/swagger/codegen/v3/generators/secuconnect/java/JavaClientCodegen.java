@@ -27,10 +27,8 @@ public class JavaClientCodegen extends AbstractJavaCodegen {
         apiPackage = "com.secuconnect.client.api";
         modelPackage = "com.secuconnect.client.model";
 
-        supportedLibraries.put("okhttp-gson", "HTTP client: OkHttp 2.7.5. JSON processing: Gson 2.8.1. Enable Parcelable models on Android using '-DparcelableModel=true'. Enable gzip request encoding using '-DuseGzipFeature=true'.");
+        supportedLibraries.put("okhttp-gson", "HTTP client: OkHttp 3.* JSON processing: Gson 2.*.");
         setLibrary("okhttp-gson");
-
-        cliOptions.add(CliOption.newBoolean("privateSdk", "Should it generate an internal SDK version or one or GitHub (default)?"));
     }
 
     @Override
@@ -123,7 +121,6 @@ public class JavaClientCodegen extends AbstractJavaCodegen {
         super.postProcessModelProperty(model, property);
         boolean isEnum = getBooleanValue(model, IS_ENUM_EXT_NAME);
         if(!BooleanUtils.toBoolean(isEnum)) {
-            //Needed imports for Jackson based libraries
             if(additionalProperties.containsKey("gson")) {
                 model.imports.add("SerializedName");
             }

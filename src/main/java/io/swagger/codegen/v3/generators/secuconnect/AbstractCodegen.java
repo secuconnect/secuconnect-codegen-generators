@@ -1,5 +1,6 @@
 package io.swagger.codegen.v3.generators.secuconnect;
 
+import io.swagger.codegen.v3.CliOption;
 import io.swagger.codegen.v3.generators.DefaultCodegenConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -7,6 +8,12 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractCodegen extends DefaultCodegenConfig {
     private static Logger LOGGER = LoggerFactory.getLogger(AbstractCodegen.class);
+
+    public AbstractCodegen() {
+        super();
+
+        cliOptions.add(CliOption.newBoolean("privateSdk", "Should it generate an internal SDK version or one or GitHub (default)?"));
+    }
 
     @Override
     final public String toModelName(final String name) {

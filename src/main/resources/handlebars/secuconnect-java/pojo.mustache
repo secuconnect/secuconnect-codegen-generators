@@ -16,31 +16,44 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#interfa
 {{>modelInnerEnum}}
     {{/isEnum}}
     {{/baseItems}}
-  {{#jackson}}
-    {{#vendorExtensions.x-is-discriminator-property}}
-  @JsonTypeId
-    {{/vendorExtensions.x-is-discriminator-property}}
-    {{^vendorExtensions.x-is-discriminator-property}}
-  @JsonProperty("{{baseName}}")
-    {{/vendorExtensions.x-is-discriminator-property}}
-  {{/jackson}}
+  {{^vendorExtensions.x-is-collection-format-multi}}
   {{#gson}}
   @SerializedName("{{baseName}}")
   {{/gson}}
   {{#isContainer}}
-  private {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
+  protected {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
   {{/isContainer}}
   {{^isContainer}}
-  private {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+  protected {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
   {{/isContainer}}
 
+  {{/vendorExtensions.x-is-collection-format-multi}}
   {{/vars}}
   {{#gson}}
-  {{#discriminator}}
+  {{#if discriminator}}
   public {{classname}}() {
     this.{{discriminator.propertyName}} = this.getClass().getSimpleName();
+    {{#vars}}
+      {{#if vendorExtensions.x-is-collection-format-multi}}
+    this.{{name}} = {{{defaultValue}}};
+      {{/if}}
+    {{/vars}}
   }
-  {{/discriminator}}
+
+  {{else}}
+  {{#if vendorExtensions.x-has-collection-format-multi}}
+  public {{classname}}() {
+    {{#vars}}
+      {{#if vendorExtensions.x-is-collection-format-multi}}
+        {{#notEquals defaultValue "null"}}
+    this.{{name}} = {{{defaultValue}}};
+        {{/notEquals}}
+      {{/if}}
+    {{/vars}}
+  }
+
+  {{/if}}
+  {{/if}}
   {{/gson}}
   {{#vars}}
   {{^isReadOnly}}
