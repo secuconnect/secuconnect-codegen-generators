@@ -23,11 +23,9 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
-{{#java8}}
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-{{/java8}}
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
@@ -42,7 +40,9 @@ public class JSON {
 
     public static GsonBuilder createGson() {
         GsonFireBuilder fireBuilder = new GsonFireBuilder()
-        {{#parent}}{{#if discriminator.propertyName}}
+        {{#models}}
+        {{#model}}
+        {{#discriminator}}
           .registerTypeSelector({{classname}}.class, new TypeSelector<{{classname}}>() {
             @Override
             public Class<? extends {{classname}}> getClassForElement(JsonElement readElement) {
@@ -90,7 +90,9 @@ public class JSON {
                   }
               }
           })
-        {{/if}}{{/parent}}
+        {{/discriminator}}
+        {{/model}}
+        {{/models}}
         .registerTypeSelector(OneOfPaymentContainersDTOModelPrivate.class, new TypeSelector<OneOfPaymentContainersDTOModelPrivate>() {
             @Override
             public Class<? extends OneOfPaymentContainersDTOModelPrivate> getClassForElement(JsonElement readElement) {
@@ -98,6 +100,12 @@ public class JSON {
                     return PaymentInstructions.class;
                 } else if (readElement.getAsJsonObject().has("pan")) {
                     return CreditCardDescriptor.class;
+                } else if (readElement.getAsJsonObject().has("header")) {
+                    return ApplePayDescriptor.class;
+                } else if (readElement.getAsJsonObject().has("signedMessage")) {
+                    return GooglePayDescriptor.class;
+                } else if (readElement.getAsJsonObject().has("payer_id")) {
+                    return PayPalDescriptor.class;
                 }
                 return BankAccountDescriptor.class;
             }
