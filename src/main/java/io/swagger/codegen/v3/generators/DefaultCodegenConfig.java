@@ -83,6 +83,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1344,6 +1345,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
         codegenModel.getVendorExtensions().put(CodegenConstants.IS_ALIAS_EXT_NAME, typeAliases.containsKey(name));
 
         codegenModel.discriminator = schema.getDiscriminator();
+        if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
+            codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
+        }
 
         if (schema.getXml() != null) {
             codegenModel.xmlPrefix = schema.getXml().getPrefix();
@@ -1404,11 +1408,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
             final List<Schema> allOf = composed.getAllOf();
             // interfaces (intermediate models)
             if (allOf != null && !allOf.isEmpty()) {
-
-                if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
-                    codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
-                }
-
                 for (int i = 0; i < allOf.size(); i++) {
                     if (i == 0 && !copyFistAllOfProperties) {
                         continue;
@@ -1431,16 +1430,6 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                         if (supportsInheritance) {
                             addProperties(allProperties, allRequired, refSchema, allDefinitions);
                         }
-                    }
-                }
-            }
-
-            final List<Schema> oneOf = composed.getOneOf();
-            if (oneOf != null && !oneOf.isEmpty()) {
-                if (schema.getDiscriminator() != null) {
-                    codegenModel.discriminator = schema.getDiscriminator();
-                    if (codegenModel.discriminator != null && codegenModel.discriminator.getPropertyName() != null) {
-                        codegenModel.discriminator.setPropertyName(toVarName(codegenModel.discriminator.getPropertyName()));
                     }
                 }
             }
@@ -2350,6 +2339,9 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
                 } else {
                     codegenResponse.baseType = codegenProperty.baseType;
                 }
+                if (isFileTypeSchema(responseSchema)) {
+                    codegenResponse.getVendorExtensions().put(CodegenConstants.IS_FILE_EXT_NAME, Boolean.TRUE);
+                }
             }
             codegenResponse.dataType = codegenProperty.datatype;
 
@@ -2524,6 +2516,8 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
             codegenParameter.dataType = codegenProperty.datatype;
             codegenParameter.dataFormat = codegenProperty.dataFormat;
+
+            setParameterJson(codegenParameter, parameterSchema);
 
             if (getBooleanValue(codegenProperty, IS_ENUM_EXT_NAME)) {
                 codegenParameter.datatypeWithEnum = codegenProperty.datatypeWithEnum;
@@ -4420,6 +4414,29 @@ public abstract class DefaultCodegenConfig implements CodegenConfig {
 
     protected void setParameterNullable(CodegenParameter parameter, CodegenProperty property) {
         parameter.nullable = property.nullable;
+    }
+
+    protected void setParameterJson(CodegenParameter codegenParameter, Schema parameterSchema) {
+        String contentType = parameterSchema.getExtensions() == null ? null : (String) parameterSchema.getExtensions().get("x-content-type");
+        if (contentType != null && contentType.startsWith("application/") && contentType.endsWith("json")) {
+            // application/json, application/problem+json, application/ld+json, some more?
+            codegenParameter.isJson = true;
+        }
+    }
+  
+    protected boolean isFileTypeSchema(Schema schema) {
+        final Schema fileTypeSchema;
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            fileTypeSchema = OpenAPIUtil.getSchemaFromRefSchema(schema, openAPI);
+        } else {
+            fileTypeSchema = schema;
+        }
+        if (fileTypeSchema.getProperties() != null) {
+            final Collection<Schema> propertySchemas = fileTypeSchema.getProperties().values();
+            return propertySchemas.stream().anyMatch(propertySchema -> "string".equalsIgnoreCase(propertySchema.getType())
+                && "binary".equalsIgnoreCase(propertySchema.getFormat()));
+        }
+        return false;
     }
 
     @Override

@@ -1109,11 +1109,6 @@ public abstract class AbstractJavaCodegen extends AbstractCodegen {
     }
 
     @Override
-    public boolean defaultIgnoreImportMappingOption() {
-        return true;
-    }
-
-    @Override
     public boolean checkAliasModel() {
         return true;
     }
