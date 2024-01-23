@@ -1,4 +1,11 @@
 <?php
+/**
+ * @noinspection PhpUnused
+ * @noinspection DuplicatedCode
+ * @noinspection PhpUnnecessaryLocalVariableInspection
+ * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
+ * @noinspection PhpPureAttributeCanBeAddedInspection
+ */
 {{#models}}
 {{#model}}
 
@@ -11,8 +18,10 @@ namespace {{modelPackage}};
 {{^isEnum}}
 {{^parentSchema}}
 
-use \ArrayAccess;
+use ArrayAccess;
 {{/parentSchema}}
+use InvalidArgumentException;
+use Secuconnect\Client\ObjectSerializer;
 {{/isEnum}}
 
 /**

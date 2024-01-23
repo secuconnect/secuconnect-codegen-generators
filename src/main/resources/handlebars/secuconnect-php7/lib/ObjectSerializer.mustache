@@ -1,28 +1,42 @@
 <?php
 
-namespace Secuconnect\Client;
+namespace {{invokerPackage}};
 
-use Secuconnect\Client\Model\ApplePayDescriptor;
-use Secuconnect\Client\Model\BankAccountDescriptor;
-use Secuconnect\Client\Model\CreditCardDescriptor;
-use Secuconnect\Client\Model\GooglePayDescriptor;
-use Secuconnect\Client\Model\OneOfPaymentContainersDTOModelPrivate;
-use Secuconnect\Client\Model\OneOfSmartTransactionsDeliveryOptionsModel;
-use Secuconnect\Client\Model\PaymentInstructions;
-use Secuconnect\Client\Model\PayPalDescriptor;
-use Secuconnect\Client\Model\SmartTransactionsCollectionModel;
-use Secuconnect\Client\Model\SmartTransactionsShippingModel;
+use {{invokerPackage}}\Model\ApplePayDescriptor;
+use {{invokerPackage}}\Model\BankAccountDescriptor;
+use {{invokerPackage}}\Model\CreditCardDescriptor;
+use {{invokerPackage}}\Model\GooglePayDescriptor;
+use {{invokerPackage}}\Model\OneOfPaymentContainersDTOModelPrivate;
+use {{invokerPackage}}\Model\OneOfSmartTransactionsDeliveryOptionsModel;
+use {{invokerPackage}}\Model\PaymentInstructions;
+use {{invokerPackage}}\Model\PayPalDescriptor;
+use {{invokerPackage}}\Model\SmartTransactionsCollectionModel;
+use {{invokerPackage}}\Model\SmartTransactionsShippingModel;
 
 /**
  * ObjectSerializer
  *
  * @category Class
- * @package  Secuconnect\Client
+ * @package  {{invokerPackage}}
  * @author   Swagger Codegen team
  * @link     https://github.com/swagger-api/swagger-codegen
  */
 class ObjectSerializer
 {
+    const INTERFACES = [
+{{#models}}
+{{#model}}
+{{^isComposedModel}}
+{{^isEnum}}
+{{#interfaceModels}}
+        '{{backSlash}}{{modelPackage}}{{backSlash}}{{../classname}}' => '{{backSlash}}{{modelPackage}}{{backSlash}}{{classname}}',
+{{/interfaceModels}}
+{{/isEnum}}
+{{/isComposedModel}}
+{{/model}}
+{{/models}}
+    ];
+
     /**
      * Serialize data
      *
@@ -248,7 +262,7 @@ class ObjectSerializer
             } else {
                 return null;
             }
-        } elseif (in_array($class, ['DateTime', 'bool', 'boolean', 'byte', 'double', 'float', 'int', 'integer', 'mixed', 'number', 'object', 'string', 'void'], true)) {
+        } elseif (in_array($class, [{{&primitives}}], true)) {
             if ($data instanceof \stdClass || is_array($data) && $class !== 'object' || $class === 'void') {
                 $data = null;
             }
@@ -311,13 +325,40 @@ class ObjectSerializer
                 if (class_exists($class) && defined($class.'::DISCRIMINATOR')) {
                     $discriminator = $class::DISCRIMINATOR;
                     if (!empty($discriminator) && isset($data->{$discriminator}) && is_string($data->{$discriminator})) {
-                        $subclass = '\\' . 'Secuconnect\Client\\Model\\' . $data->{$discriminator};
+                        $subclass = '{{backSlash}}{{invokerPackage}}\Model\\' . $data->{$discriminator};
                         if (is_subclass_of($subclass, $class)) {
                             $class = $subclass;
                         }
                     }
                 }
             }
+
+            // handle "oneOf"
+            if (interface_exists($class) && in_array($class, self::INTERFACES)) {
+                $subclass = null;
+                $class_list = array_keys(array_intersect(self::INTERFACES, [$class]));
+                if (count($class_list) > 1) {
+                    $previous_matches = 0;
+                    foreach ($class_list as $current_subclass) {
+                        $current_matches = count(array_intersect(
+                            array_keys((array)$data),
+                            array_keys($current_subclass::attributeMap())
+                        ));
+
+                        if ($current_matches > $previous_matches) {
+                            $previous_matches = $current_matches;
+                            $subclass = $current_subclass;
+                        }
+                    }
+                } else {
+                    $subclass = reset($class_list);
+                }
+
+                if ($subclass !== null && is_subclass_of($subclass, $class)) {
+                    $class = $subclass;
+                }
+            }
+
             $instance = new $class();
             foreach ($instance::swaggerTypes() as $property => $type) {
                 $propertySetter = $instance::setters()[$property];

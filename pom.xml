@@ -12,7 +12,7 @@
 
     <groupId>io.swagger.codegen.v3</groupId>
     <artifactId>secuconnect-codegen-generators</artifactId>
-    <version>1.0.41.0</version>
+    <version>1.0.41.1</version>
     <packaging>jar</packaging>
 
     <build>
@@ -21,30 +21,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.5.0</version>
-                <configuration>
-                    <aggregate>true</aggregate>
-                    <source>1.8</source>
-                    <encoding>UTF-8</encoding>
-                    <maxmemory>1g</maxmemory>
-                    <excludePackageNames>${javadoc.package.exclude}</excludePackageNames>
-                    <additionalOptions>
-                        <additionalOption>-Xdoclint:none</additionalOption>
-                    </additionalOptions>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -59,22 +35,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire-version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>surefire-junit4</artifactId>
-                        <version>3.0.0</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <testNGArtifactName>none:none</testNGArtifactName>
-                    <argLine>-javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit-version}/jmockit-${jmockit-version}.jar -XX:+IgnoreUnrecognizedVMOptions --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
-                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -172,6 +132,7 @@
                 <artifactId>jackson-datatype-joda</artifactId>
                 <version>${jackson-version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -228,8 +189,8 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j-version}</version>
-            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>

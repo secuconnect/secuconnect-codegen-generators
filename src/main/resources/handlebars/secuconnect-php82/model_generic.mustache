@@ -1,4 +1,4 @@
-class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#@first}} implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/parentSchema}}{{^parentSchema}}implements ArrayAccess{{#interfaceModels}}, {{classname}}{{/interfaceModels}}{{/parentSchema}}{{#parentSchema}}{{/parentSchema}}
+class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#@first}} implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{{/parentSchema}}{{^parentSchema}}implements ArrayAccess, ModelInterface{{#interfaceModels}}, {{classname}}{{/interfaceModels}}{{/parentSchema}}{{#parentSchema}}{{/parentSchema}}
 {
     const DISCRIMINATOR = {{#discriminator}}'{{discriminator.propertyName}}'{{/discriminator}}{{^discriminator}}null{{/discriminator}};
 
@@ -6,13 +6,13 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
       * The original name of the model.
       * @var string
       */
-    protected static $swaggerModelName = '{{name}}';
+    protected static string $swaggerModelName = '{{name}}';
 
     /**
       * Array of property to type mappings. Used for (de)serialization
       * @var string[]
       */
-    protected static $swaggerTypes = [{{#vars}}
+    protected static array $swaggerTypes = [{{#vars}}
         '{{name}}' => '{{{datatypeWithEnum}}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
@@ -20,16 +20,16 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
       * Array of property to format mappings. Used for (de)serialization
       * @var string[]
       */
-    protected static $swaggerFormats = [{{#vars}}
+    protected static array $swaggerFormats = [{{#vars}}
         '{{name}}' => {{#dataFormat}}'{{{dataFormat}}}'{{/dataFormat}}{{^dataFormat}}null{{/dataFormat}}{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
-    public static function swaggerTypes()
+    public static function swaggerTypes(): array
     {
         return self::$swaggerTypes{{#parentSchema}} + parent::swaggerTypes(){{/parentSchema}};
     }
 
-    public static function swaggerFormats()
+    public static function swaggerFormats(): array
     {
         return self::$swaggerFormats{{#parentSchema}} + parent::swaggerFormats(){{/parentSchema}};
     }
@@ -38,7 +38,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * Array of attributes where the key is the local name, and the value is the original name
      * @var string[]
      */
-    protected static $attributeMap = [{{#vars}}
+    protected static array $attributeMap = [{{#vars}}
         '{{name}}' => '{{baseName}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
@@ -46,7 +46,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * Array of attributes to setter functions (for deserialization of responses)
      * @var string[]
      */
-    protected static $setters = [{{#vars}}
+    protected static array $setters = [{{#vars}}
         '{{name}}' => '{{setter}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
@@ -54,21 +54,21 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * Array of attributes to getter functions (for serialization of requests)
      * @var string[]
      */
-    protected static $getters = [{{#vars}}
+    protected static array $getters = [{{#vars}}
         '{{name}}' => '{{getter}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
-    public static function attributeMap()
+    public static function attributeMap(): array
     {
         return {{#parentSchema}}parent::attributeMap() + {{/parentSchema}}self::$attributeMap;
     }
 
-    public static function setters()
+    public static function setters(): array
     {
         return {{#parentSchema}}parent::setters() + {{/parentSchema}}self::$setters;
     }
 
-    public static function getters()
+    public static function getters(): array
     {
         return {{#parentSchema}}parent::getters() + {{/parentSchema}}self::$getters;
     }
@@ -79,7 +79,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * Gets allowable values of the enum
      * @return string[]
      */
-    public function {{getter}}AllowableValues()
+    public function {{getter}}AllowableValues(): array
     {
         return [{{#allowableValues}}{{#enumVars}}
             self::{{enumName}}_{{{name}}},{{^@last}}{{/@last}}{{/enumVars}}{{/allowableValues}}
@@ -90,14 +90,14 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
 
     /**
      * Associative array for storing property values
-     * @var mixed[]
+     * @var array
      */
-    protected $container = [];
+    protected array $container = [];
     {{/parentSchema}}
 
     /**
      * Constructor
-     * @param mixed[] $data Associated array of property values initializing the model
+     * @param array|null $data Associated array of property values initializing the model
      */
     public function __construct(array $data = null)
     {
@@ -106,7 +106,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
 
         {{/parentSchema}}
         {{#vars}}
-        $this->container['{{name}}'] = isset($data['{{name}}']) ? $data['{{name}}'] : {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}};
+        $this->container['{{name}}'] = $data['{{name}}'] ?? {{#defaultValue}}{{{defaultValue}}}{{/defaultValue}}{{^defaultValue}}null{{/defaultValue}};
         {{/vars}}
         {{#discriminator}}
 
@@ -121,7 +121,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      *
      * @return array invalid properties with reasons
      */
-    public function listInvalidProperties()
+    public function listInvalidProperties(): array
     {
         {{#parentSchema}}
         $invalid_properties = parent::listInvalidProperties();
@@ -202,7 +202,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      *
      * @return bool True if all properties are valid
      */
-    public function valid()
+    public function valid(): bool
     {
         return true;
     }
@@ -213,23 +213,23 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * Gets {{name}}
      * @return {{datatype}}
      */
-    public function {{getter}}()
+    public function {{getter}}(): {{baseType}}|null
     {
-        return $this->container['{{name}}'];
+        return $this->container['{{name}}'] ?? null;
     }
 
     /**
      * Sets {{name}}
-     * @param {{datatype}} ${{name}}{{#description}} {{{description}}}{{/description}}{{^description}} {{{name}}}{{/description}}
+     * @param {{datatype}}|null ${{name}}{{#description}} {{{description}}}{{/description}}{{^description}} {{{name}}}{{/description}}
      * @return $this
      */
-    public function {{setter}}(${{name}})
+    public function {{setter}}(?{{baseType}} ${{name}}): static
     {
         {{#isEnum}}
         $allowed_values = $this->{{getter}}AllowableValues();
         {{^isContainer}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}!in_array(${{{name}}}, $allowed_values, true)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     "Invalid value for '{{name}}', must be one of '%s'",
                     implode("', '", $allowed_values)
@@ -239,7 +239,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
         {{/isContainer}}
         {{#isContainer}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}array_diff(${{{name}}}, $allowed_values)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     "Invalid value for '{{name}}', must be one of '%s'",
                     implode("', '", $allowed_values)
@@ -251,35 +251,35 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
         {{#hasValidation}}
         {{#maxLength}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(mb_strlen(${{name}}) > {{maxLength}})) {
-            throw new \InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, must be smaller than or equal to {{maxLength}}.');
+            throw new InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, must be smaller than or equal to {{maxLength}}.');
         }{{/maxLength}}
         {{#minLength}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(mb_strlen(${{name}}) < {{minLength}})) {
-            throw new \InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, must be bigger than or equal to {{minLength}}.');
+            throw new InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, must be bigger than or equal to {{minLength}}.');
         }
         {{/minLength}}
         {{#maximum}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(${{name}} >{{#exclusiveMaximum}}={{/exclusiveMaximum}} {{maximum}})) {
-            throw new \InvalidArgumentException('invalid value for ${{name}} when calling {{classname}}.{{operationId}}, must be smaller than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}{{maximum}}.');
+            throw new InvalidArgumentException('invalid value for ${{name}} when calling {{classname}}.{{operationId}}, must be smaller than {{^exclusiveMaximum}}or equal to {{/exclusiveMaximum}}{{maximum}}.');
         }
         {{/maximum}}
         {{#minimum}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(${{name}} <{{#exclusiveMinimum}}={{/exclusiveMinimum}} {{minimum}})) {
-            throw new \InvalidArgumentException('invalid value for ${{name}} when calling {{classname}}.{{operationId}}, must be bigger than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}{{minimum}}.');
+            throw new InvalidArgumentException('invalid value for ${{name}} when calling {{classname}}.{{operationId}}, must be bigger than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}{{minimum}}.');
         }
         {{/minimum}}
         {{#pattern}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(!preg_match("{{{pattern}}}", ${{name}}))) {
-            throw new \InvalidArgumentException("invalid value for ${{name}} when calling {{classname}}.{{operationId}}, must conform to the pattern {{{pattern}}}.");
+            throw new InvalidArgumentException("invalid value for ${{name}} when calling {{classname}}.{{operationId}}, must conform to the pattern {{{pattern}}}.");
         }
         {{/pattern}}
         {{#maxItems}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(count(${{name}}) > {{maxItems}})) {
-            throw new \InvalidArgumentException('invalid value for ${{name}} when calling {{classname}}.{{operationId}}, number of items must be less than or equal to {{maxItems}}.');
+            throw new InvalidArgumentException('invalid value for ${{name}} when calling {{classname}}.{{operationId}}, number of items must be less than or equal to {{maxItems}}.');
         }{{/maxItems}}
         {{#minItems}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(count(${{name}}) < {{minItems}})) {
-            throw new \InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, number of items must be greater than or equal to {{minItems}}.');
+            throw new InvalidArgumentException('invalid length for ${{name}} when calling {{classname}}.{{operationId}}, number of items must be greater than or equal to {{minItems}}.');
         }
         {{/minItems}}
         {{/hasValidation}}
@@ -294,8 +294,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * @param integer $offset Offset
      * @return boolean
      */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
         return isset($this->container[$offset]);
     }
@@ -305,10 +304,9 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * @param integer $offset Offset
      * @return mixed
      */
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
+        return $this->container[$offset] ?? null;
     }
 
     /**
@@ -317,8 +315,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * @param mixed   $value  Value to be set
      * @return void
      */
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (is_null($offset)) {
             $this->container[] = $value;
@@ -332,8 +329,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * @param integer $offset Offset
      * @return void
      */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->container[$offset]);
     }
@@ -342,13 +338,17 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      * Gets the string presentation of the object
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        if (defined('JSON_PRETTY_PRINT')) { // use JSON pretty print
-            return json_encode(\Secuconnect\Client\ObjectSerializer::sanitizeForSerialization($this), JSON_PRETTY_PRINT);
-        }
+        return json_encode(ObjectSerializer::sanitizeForSerialization($this), JSON_PRETTY_PRINT);
+    }
 
-        return json_encode(\Secuconnect\Client\ObjectSerializer::sanitizeForSerialization($this));
+    /**
+     * @inheritDoc
+     */
+    public function getModelName(): string
+    {
+        return self::$swaggerModelName;
     }
 }
 

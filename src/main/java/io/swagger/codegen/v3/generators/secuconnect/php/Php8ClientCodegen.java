@@ -1,24 +1,7 @@
 package io.swagger.codegen.v3.generators.secuconnect.php;
 
-import io.swagger.codegen.v3.CliOption;
-import io.swagger.codegen.v3.CodegenConstants;
-import io.swagger.codegen.v3.CodegenModel;
-import io.swagger.codegen.v3.CodegenOperation;
-import io.swagger.codegen.v3.CodegenParameter;
-import io.swagger.codegen.v3.CodegenProperty;
-import io.swagger.codegen.v3.CodegenSecurity;
-import io.swagger.codegen.v3.CodegenType;
-import io.swagger.codegen.v3.SupportingFile;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.DateSchema;
-import io.swagger.v3.oas.models.media.DateTimeSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.codegen.v3.*;
+import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.parser.util.SchemaTypeUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -26,19 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
 import static io.swagger.codegen.v3.generators.handlebars.ExtensionHelper.getBooleanValue;
 
-public class PhpClientCodegen extends AbstractPhpCodegen {
-    private static Logger LOGGER = LoggerFactory.getLogger(PhpClientCodegen.class);
+public class Php8ClientCodegen extends AbstractPhpCodegen {
+    private static Logger LOGGER = LoggerFactory.getLogger(Php8ClientCodegen.class);
 
     public static final String VARIABLE_NAMING_CONVENTION = "variableNamingConvention";
     public static final String PACKAGE_PATH = "packagePath";
@@ -59,7 +37,7 @@ public class PhpClientCodegen extends AbstractPhpCodegen {
     protected String apiDocPath = docsBasePath + "/" + apiDirName;
     protected String modelDocPath = docsBasePath + "/" + modelDirName;
 
-    public PhpClientCodegen() {
+    public Php8ClientCodegen() {
         super();
 
         // clear import mapping (from default generator) as php does not use it
@@ -71,7 +49,7 @@ public class PhpClientCodegen extends AbstractPhpCodegen {
         apiTemplateFiles.put("api.mustache", ".php");
         //modelTestTemplateFiles.put("model_test.mustache", ".php");
         //apiTestTemplateFiles.put("api_test.mustache", ".php");
-        embeddedTemplateDir = "secuconnect-php7";
+        embeddedTemplateDir = "secuconnect-php82";
         apiPackage = invokerPackage + "\\" + apiDirName;
         modelPackage = invokerPackage + "\\" + modelDirName;
 
@@ -145,12 +123,12 @@ public class PhpClientCodegen extends AbstractPhpCodegen {
 
     @Override
     public String getName() {
-        return "secuconnect-php";
+        return "secuconnect-php8";
     }
 
     @Override
     public String getHelp() {
-        return "Generates a PHP client library.";
+        return "Generates a PHP 8 client library.";
     }
 
     @Override
@@ -232,7 +210,7 @@ public class PhpClientCodegen extends AbstractPhpCodegen {
         }
 
         if (additionalProperties.containsKey("privateSdk")) {
-            this.additionalProperties.put("privateSdk", true);
+            this.additionalProperties.put("privateSdk", "true");
         }
 
         additionalProperties.put("escapedInvokerPackage", invokerPackage.replace("\\", "\\\\"));
@@ -245,41 +223,14 @@ public class PhpClientCodegen extends AbstractPhpCodegen {
 
         // make test path available in mustache template
         additionalProperties.put("testBasePath", testBasePath);
-        String path = toPackagePath(invokerPackage, srcBasePath);
 
-        supportingFiles.add(new SupportingFile("gitattributes.mustache", getPackagePath(), ".gitattributes"));
-        supportingFiles.add(new SupportingFile("gitignore.mustache", getPackagePath(), ".gitignore"));
-        supportingFiles.add(new SupportingFile("CHANGELOG.mustache", getPackagePath(), "CHANGELOG.md"));
+        supportingFiles.add(new SupportingFile("ApiException.mustache", toPackagePath(invokerPackage, srcBasePath), "ApiException.php"));
+        supportingFiles.add(new SupportingFile("Configuration.mustache", toPackagePath(invokerPackage, srcBasePath), "Configuration.php"));
+        supportingFiles.add(new SupportingFile("ObjectSerializer.mustache", toPackagePath(invokerPackage, srcBasePath), "ObjectSerializer.php"));
+        supportingFiles.add(new SupportingFile("ModelInterface.mustache", toPackagePath(modelPackage, srcBasePath), "ModelInterface.php"));
+        supportingFiles.add(new SupportingFile("HeaderSelector.mustache", toPackagePath(invokerPackage, srcBasePath), "HeaderSelector.php"));
         supportingFiles.add(new SupportingFile("composer.mustache", getPackagePath(), "composer.json"));
-        supportingFiles.add(new SupportingFile("LICENSE.mustache", getPackagePath(), "LICENSE"));
-        supportingFiles.add(new SupportingFile("phpunit.mustache", getPackagePath(), "phpunit.xml.dist"));
         supportingFiles.add(new SupportingFile("README.mustache", getPackagePath(), "README.md"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "ApiClient.mustache", path, "ApiClient.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "ApiException.mustache", path, "ApiException.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Configuration.mustache", path, "Configuration.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "HeaderSelector.mustache", path, "HeaderSelector.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "ObjectSerializer.mustache", path, "ObjectSerializer.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "AuthenticationCredentials.mustache", path, "Authentication" + File.separatorChar + "AuthenticationCredentials.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "Authenticator.mustache", path, "Authentication" + File.separatorChar + "Authenticator.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "OAuthApplicationUserCredentials.mustache", path, "Authentication" + File.separatorChar + "OAuthApplicationUserCredentials.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "OAuthClientCredentials.mustache", path, "Authentication" + File.separatorChar + "OAuthClientCredentials.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "OAuthDeviceCredentials.mustache", path, "Authentication" + File.separatorChar + "OAuthDeviceCredentials.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "OAuthRefreshCredentials.mustache", path, "Authentication" + File.separatorChar + "OAuthRefreshCredentials.php"));
-        if (additionalProperties.containsKey("privateSdk")) {
-            supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "OAuthApiKeyCredentials.mustache", path, "Authentication" + File.separatorChar + "OAuthApiKeyCredentials.php"));
-            supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Authentication" + File.separatorChar + "OAuthContractCredentials.mustache", path, "Authentication" + File.separatorChar + "OAuthContractCredentials.php"));
-        }
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Cache" + File.separatorChar + "CacheItem.mustache", path, "Cache" + File.separatorChar + "CacheItem.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Cache" + File.separatorChar + "FileCache.mustache", path, "Cache" + File.separatorChar + "FileCache.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Logger" + File.separatorChar + "LocalFileLogger.mustache", path, "Logger" + File.separatorChar + "LocalFileLogger.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Model" + File.separatorChar + "ModelInterface.mustache", path, "Model" + File.separatorChar + "ModelInterface.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Printer" + File.separatorChar + "ImitationDevicePrinter.mustache", path, "Printer" + File.separatorChar + "ImitationDevicePrinter.php"));
-        supportingFiles.add(new SupportingFile(srcBasePath + File.separatorChar + "Printer" + File.separatorChar + "Printer.mustache", path, "Printer" + File.separatorChar + "Printer.php"));
-    }
-
-    @Override
-    public boolean shouldOverwrite(String filename) {
-        return super.shouldOverwrite(filename) && !filename.endsWith("CHANGELOG.md");
     }
 
     @Override
@@ -409,11 +360,7 @@ public class PhpClientCodegen extends AbstractPhpCodegen {
 
     @Override
     public String getDefaultTemplateDir() {
-        if (additionalProperties.containsKey("privateSdk")) {
-            return "secuconnect-php7";
-        } else {
-            return "secuconnect-php8";
-        }
+        return "secuconnect-php82";
     }
 
     @Override

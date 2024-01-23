@@ -1,11 +1,11 @@
 <?php
 
-namespace Secuconnect\Client;
+namespace {{invokerPackage}};
 
 use Psr\Cache\CacheItemPoolInterface;
-use Secuconnect\Client\Cache\FileCache;
-use Secuconnect\Client\Printer\ImitationDevicePrinter;
-use Secuconnect\Client\Printer\Printer;
+use {{invokerPackage}}\Cache\FileCache;
+use {{invokerPackage}}\Printer\ImitationDevicePrinter;
+use {{invokerPackage}}\Printer\Printer;
 
 /**
  * Class Configuration
@@ -760,7 +760,7 @@ class Configuration
     }
 
     /**
-     * Sets the detault configuration instance
+     * Sets the default configuration instance
      *
      * @param Configuration $config An instance of the Configuration Object
      *
@@ -778,7 +778,7 @@ class Configuration
      */
     public static function toDebugReport()
     {
-        $report  = 'PHP SDK (Secuconnect\Client) Debug Report:' . PHP_EOL;
+        $report  = 'PHP SDK ({{invokerPackage}}) Debug Report:' . PHP_EOL;
         $report .= '    OS: ' . php_uname() . PHP_EOL;
         $report .= '    PHP Version: ' . PHP_VERSION . PHP_EOL;
         $report .= '    OpenAPI Spec Version: 2.0.0' . PHP_EOL;
