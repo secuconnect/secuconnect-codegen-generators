@@ -39,6 +39,9 @@ public class HandlebarsHelpers {
         if (Objects.equal(element, "preset")) {
             return options.inverse();
         }
+        if (Objects.equal(element, "expand")) {
+            return options.inverse();
+        }
 
         return options.fn();
     }

@@ -1,12 +1,9 @@
-{{>licenseInfo}}
-
 package {{invokerPackage}};
 
 import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 
-{{>generatedAnnotation}}
 public class ApiException extends Exception {
     private int code = 0;
     private Map<String, List<String>> responseHeaders = null;

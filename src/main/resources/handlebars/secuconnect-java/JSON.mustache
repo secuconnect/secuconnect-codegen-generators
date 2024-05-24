@@ -1,5 +1,3 @@
-{{>licenseInfo}}
-
 package {{invokerPackage}};
 
 import com.google.gson.Gson;
@@ -40,97 +38,94 @@ public class JSON {
 
     public static GsonBuilder createGson() {
         GsonFireBuilder fireBuilder = new GsonFireBuilder()
-        {{#models}}
-        {{#model}}
+        {{#parent}}
         {{#discriminator}}
-          .registerTypeSelector({{classname}}.class, new TypeSelector<{{classname}}>() {
-            @Override
-            public Class<? extends {{classname}}> getClassForElement(JsonElement readElement) {
-                Map<String, Class<? extends {{classname}}>> classByDiscriminatorValue = new HashMap<>();
-                {{#if discriminator.mapping}}
-                    {{#each discriminator.mapping}}
-                    classByDiscriminatorValue.put("{{@key}}".toUpperCase(), {{this}}.class);
-                    {{/each}}
-                {{else}}
-                    {{#children}}
-                    classByDiscriminatorValue.put("{{name}}".toUpperCase(), {{classname}}.class);
-                    {{/children}}
-                    classByDiscriminatorValue.put("{{classname}}".toUpperCase(), {{classname}}.class);
-                {{/if}}
-                return getClassByDiscriminator(
-                            classByDiscriminatorValue,
-                            getDiscriminatorValue(readElement, "{{discriminator.propertyName}}"));
-            }
-          })
-          .registerPostProcessor({{classname}}.class, new PostProcessor<{{classname}}>() {
-              @Override
-              public void postDeserialize({{classname}} result, JsonElement src, Gson gson) {
+                .registerTypeSelector({{classname}}.class, new TypeSelector<{{classname}}>() {
+                    @Override
+                    public Class<? extends {{classname}}> getClassForElement(JsonElement readElement) {
+                        Map<String, Class<? extends {{classname}}>> classByDiscriminatorValue = new HashMap<>();
+                    {{#if discriminator.mapping}}
+                        {{#each discriminator.mapping}}
+                        classByDiscriminatorValue.put("{{@key}}".toUpperCase(), {{this}}.class);
+                        {{/each}}
+                    {{else}}
+                        {{#children}}
+                        classByDiscriminatorValue.put("{{name}}".toUpperCase(), {{classname}}.class);
+                        {{/children}}
+                        classByDiscriminatorValue.put("{{classname}}".toUpperCase(), {{classname}}.class);
+                    {{/if}}
+                    return getClassByDiscriminator(
+                                classByDiscriminatorValue,
+                                getDiscriminatorValue(readElement, "{{discriminator.propertyName}}"));
+                        }
+                })
+                .registerPostProcessor({{classname}}.class, new PostProcessor<{{classname}}>() {
+                    @Override
+                    public void postDeserialize({{classname}} result, JsonElement src, Gson gson) {
 
-              }
-
-              @Override
-              public void postSerialize(JsonElement result, {{classname}} src, Gson gson) {
-                  Map<Class<? extends {{classname}}>, String> discriminatorValueByClass = new HashMap<>();
-                  {{#if discriminator.mapping}}
-                      {{#each discriminator.mapping}}
-                      discriminatorValueByClass.put({{this}}.class, "{{@key}}");
-                      {{/each}}
-                  {{else}}
-                      {{#children}}
-                      discriminatorValueByClass.put({{classname}}.class, "{{name}}");
-                      {{/children}}
-                      discriminatorValueByClass.put({{classname}}.class, "{{classname}}");
-                  {{/if}}
-                  if(result instanceof JsonObject)
-                  {
-                      if(!((JsonObject) result).has("{{discriminator.propertyName}}"))
-                      {
-                          ((JsonObject) result).addProperty("{{discriminator.propertyName}}", discriminatorValueByClass.get(src.getClass()));
-                      }
-                  }
-              }
-          })
-        {{/discriminator}}
-        {{/model}}
-        {{/models}}
-        .registerTypeSelector(OneOfPaymentContainersDTOModelPrivate.class, new TypeSelector<OneOfPaymentContainersDTOModelPrivate>() {
-            @Override
-            public Class<? extends OneOfPaymentContainersDTOModelPrivate> getClassForElement(JsonElement readElement) {
-                if (readElement.getAsJsonObject().has("girocode_url")) {
-                    return PaymentInstructions.class;
-                } else if (readElement.getAsJsonObject().has("pan")) {
-                    return CreditCardDescriptor.class;
-                } else if (readElement.getAsJsonObject().has("header")) {
-                    return ApplePayDescriptor.class;
-                } else if (readElement.getAsJsonObject().has("signedMessage")) {
-                    return GooglePayDescriptor.class;
-                } else if (readElement.getAsJsonObject().has("payer_id")) {
-                    return PayPalDescriptor.class;
-                }
-                return BankAccountDescriptor.class;
-            }
-        })
-        .registerTypeSelector(OneOfSmartTransactionsDeliveryOptionsModel.class, new TypeSelector<OneOfSmartTransactionsDeliveryOptionsModel>() {
-            @Override
-            public Class<? extends OneOfSmartTransactionsDeliveryOptionsModel> getClassForElement(JsonElement readElement) {
-                if (readElement.getAsJsonObject().has("type")) {
-                    if ("shipping".equals(readElement.getAsJsonObject().get("type").toString())) {
-                        return SmartTransactionsShippingModel.class;
-                    } else if ("collection".equals(readElement.getAsJsonObject().get("type").toString())) {
-                        return SmartTransactionsCollectionModel.class;
                     }
-                }
 
-                return SmartTransactionsShippingModel.class;
-            }
-        })
-        ;
+                    @Override
+                    public void postSerialize(JsonElement result, {{classname}} src, Gson gson) {
+                        Map<Class<? extends {{classname}}>, String> discriminatorValueByClass = new HashMap<>();
+                        {{#if discriminator.mapping}}
+                            {{#each discriminator.mapping}}
+                            discriminatorValueByClass.put({{this}}.class, "{{@key}}");
+                            {{/each}}
+                        {{else}}
+                            {{#children}}
+                            discriminatorValueByClass.put({{classname}}.class, "{{name}}");
+                            {{/children}}
+                            discriminatorValueByClass.put({{classname}}.class, "{{classname}}");
+                        {{/if}}
+                        if(result instanceof JsonObject)
+                        {
+                            if(!((JsonObject) result).has("{{discriminator.propertyName}}"))
+                            {
+                                ((JsonObject) result).addProperty("{{discriminator.propertyName}}", discriminatorValueByClass.get(src.getClass()));
+                            }
+                        }
+                    }
+                })
+        {{/discriminator}}
+        {{/parent}}
+                .registerTypeSelector(OneOfPaymentContainersDTOModelPrivate.class, new TypeSelector<OneOfPaymentContainersDTOModelPrivate>() {
+                    @Override
+                    public Class<? extends OneOfPaymentContainersDTOModelPrivate> getClassForElement(JsonElement readElement) {
+                        if (readElement.getAsJsonObject().has("girocode_url")) {
+                            return PaymentInstructions.class;
+                        } else if (readElement.getAsJsonObject().has("pan")) {
+                            return CreditCardDescriptor.class;
+                        } else if (readElement.getAsJsonObject().has("header")) {
+                            return ApplePayDescriptor.class;
+                        } else if (readElement.getAsJsonObject().has("signedMessage")) {
+                            return GooglePayDescriptor.class;
+                        } else if (readElement.getAsJsonObject().has("payer_id")) {
+                            return PayPalDescriptor.class;
+                        }
+                        return BankAccountDescriptor.class;
+                    }
+                })
+                .registerTypeSelector(OneOfSmartTransactionsDeliveryOptionsModel.class, new TypeSelector<OneOfSmartTransactionsDeliveryOptionsModel>() {
+                    @Override
+                    public Class<? extends OneOfSmartTransactionsDeliveryOptionsModel> getClassForElement(JsonElement readElement) {
+                        if (readElement.getAsJsonObject().has("type")) {
+                            if ("shipping".equals(readElement.getAsJsonObject().get("type").toString())) {
+                                return SmartTransactionsShippingModel.class;
+                            } else if ("collection".equals(readElement.getAsJsonObject().get("type").toString())) {
+                                return SmartTransactionsCollectionModel.class;
+                            }
+                        }
+
+                        return SmartTransactionsShippingModel.class;
+                    }
+                });
         return fireBuilder.createGsonBuilder();
     }
 
     private static String getDiscriminatorValue(JsonElement readElement, String discriminatorField) {
         JsonElement element = readElement.getAsJsonObject().get(discriminatorField);
-        if(null == element) {
+        if (null == element) {
             throw new IllegalArgumentException("missing discriminator field: <" + discriminatorField + ">");
         }
         return element.getAsString();
@@ -138,7 +133,7 @@ public class JSON {
 
     private static <T> Class<? extends T> getClassByDiscriminator(Map<String, Class<? extends T>> classByDiscriminatorValue, String discriminatorValue) {
         Class<? extends T> clazz = classByDiscriminatorValue.get(discriminatorValue.toUpperCase());
-        if(null == clazz) {
+        if (null == clazz) {
             throw new IllegalArgumentException("cannot determine model class of name: <" + discriminatorValue + ">");
         }
         return clazz;
@@ -146,11 +141,11 @@ public class JSON {
 
     public JSON() {
         gson = createGson()
-            .registerTypeAdapter(Date.class, dateTypeAdapter)
-            .registerTypeAdapter(java.sql.Date.class, sqlDateTypeAdapter)
-            .registerTypeAdapter(OffsetDateTime.class, offsetDateTimeTypeAdapter)
-            .registerTypeAdapter(LocalDate.class, localDateTypeAdapter)
-            .create();
+                .registerTypeAdapter(Date.class, dateTypeAdapter)
+                .registerTypeAdapter(java.sql.Date.class, sqlDateTypeAdapter)
+                .registerTypeAdapter(OffsetDateTime.class, offsetDateTimeTypeAdapter)
+                .registerTypeAdapter(LocalDate.class, localDateTypeAdapter)
+                .create();
     }
 
     /**
@@ -253,7 +248,7 @@ public class JSON {
                 default:
                     String date = in.nextString();
                     if (date.endsWith("+0000")) {
-                        date = date.substring(0, date.length()-5) + "Z";
+                        date = date.substring(0, date.length() - 5) + "Z";
                     }
                     return OffsetDateTime.parse(date, formatter);
             }

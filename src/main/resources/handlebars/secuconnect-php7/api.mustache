@@ -266,18 +266,21 @@ use {{invokerPackage}}\Authentication\Authenticator;
                 {{/returnType}}
             } catch (ApiException $e) {
                 switch ($e->getCode()) {
-                {{#responses}}
-                    {{#dataType}}{{#defaultStatus code}}{{#authMethods}}case 401:
+                {{#responses}}{{#defaultStatus code}}
+                    {{#returnType}}case 200:
+                        $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '{{returnType}}', $e->getResponseHeaders());
+                        $e->setResponseObject($data);
+                        break;
+                    {{/returnType}}{{#authMethods}}case 401:
                         if ($retries < 1) {
                             Authenticator::reauthenticate();
                             continue 2;
                         }
-                    {{/authMethods}}default:{{else}}case {{code}}:{{/defaultStatus}}
+                    {{/authMethods}}default:
                         $data = $this->apiClient->getSerializer()->deserialize($e->getResponseBody(), '{{dataType}}', $e->getResponseHeaders());
                         $e->setResponseObject($data);
                         break;
-                    {{/dataType}}
-                {{/responses}}
+                {{/defaultStatus}}{{/responses}}
                 }
 
                 throw $e;

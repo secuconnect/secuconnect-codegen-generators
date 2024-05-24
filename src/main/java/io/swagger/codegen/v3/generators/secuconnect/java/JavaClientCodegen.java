@@ -57,15 +57,16 @@ public class JavaClientCodegen extends AbstractJavaCodegen {
         //Common files
         supportingFiles.add(new SupportingFile("README.mustache", "", "README.md"));
 
-//        supportingFiles.add(new SupportingFile("ApiException.mustache", invokerFolder, "ApiException.java"));
-//        supportingFiles.add(new SupportingFile("Pair.mustache", invokerFolder, "Pair.java")); // TODO check if needed
+        supportingFiles.add(new SupportingFile("ApiCallback.mustache", invokerFolder, "ApiCallback.java"));
+        supportingFiles.add(new SupportingFile("ApiClient.mustache", invokerFolder, "ApiClient.java"));
+        supportingFiles.add(new SupportingFile("ApiException.mustache", invokerFolder, "ApiException.java"));
+        supportingFiles.add(new SupportingFile("ApiResponse.mustache", invokerFolder, "ApiResponse.java"));
+        supportingFiles.add(new SupportingFile("Environment.mustache", invokerFolder, "Environment.java"));
+        supportingFiles.add(new SupportingFile("ExceptionBody.mustache", invokerFolder, "ExceptionBody.java"));
+        supportingFiles.add(new SupportingFile("JSON.mustache", invokerFolder, "JSON.java"));
+        supportingFiles.add(new SupportingFile("Pair.mustache", invokerFolder, "Pair.java"));
 
         // the "okhttp-gson" library template requires "ApiCallback.mustache" for async call
-//        supportingFiles.add(new SupportingFile("ApiCallback.mustache", invokerFolder, "ApiCallback.java"));
-//        supportingFiles.add(new SupportingFile("ApiResponse.mustache", invokerFolder, "ApiResponse.java"));
-//        supportingFiles.add(new SupportingFile("JSON.mustache", invokerFolder, "JSON.java"));
-//        supportingFiles.add(new SupportingFile("ProgressRequestBody.mustache", invokerFolder, "ProgressRequestBody.java"));
-//        supportingFiles.add(new SupportingFile("ProgressResponseBody.mustache", invokerFolder, "ProgressResponseBody.java"));
         additionalProperties.put("gson", "true");
 
         if (additionalProperties.containsKey("privateSdk")) {
