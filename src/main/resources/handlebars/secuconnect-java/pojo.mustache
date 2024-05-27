@@ -1,30 +1,18 @@
-{{#hasEnums}}{{#gson}}
-import java.io.IOException;
-import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-{{/gson}}{{/hasEnums}}
 
 /**
  * {{#description}}{{.}}{{/description}}{{^description}}{{classname}}{{/description}}
  */
 public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#interfaceModels}}{{#@first}}implements {{/@first}}{{classname}}{{^@last}}, {{/@last}}{{#@last}} {{/@last}}{{/interfaceModels}}{
   {{#vars}}
-    {{#baseItems this}}
-    {{#isEnum}}
-{{>modelInnerEnum}}
-    {{/isEnum}}
-    {{/baseItems}}
   {{^vendorExtensions.x-is-collection-format-multi}}
   {{#gson}}
   @SerializedName("{{baseName}}")
   {{/gson}}
   {{#isContainer}}
-  protected {{{datatypeWithEnum}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
+  protected {{{datatype}}} {{name}}{{#required}} = {{{defaultValue}}}{{/required}}{{^required}} = null{{/required}};
   {{/isContainer}}
   {{^isContainer}}
-  protected {{{datatypeWithEnum}}} {{name}} = {{{defaultValue}}};
+  protected {{{datatype}}} {{name}} = {{{defaultValue}}};
   {{/isContainer}}
 
   {{/vendorExtensions.x-is-collection-format-multi}}
@@ -57,13 +45,13 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#interfa
   {{/gson}}
   {{#vars}}
   {{^isReadOnly}}
-  public {{classname}} {{name}}({{{datatypeWithEnum}}} {{name}}) {
+  public {{classname}} {{name}}({{{datatype}}} {{name}}) {
     this.{{name}} = {{name}};
     return this;
   }
   {{#isListContainer}}
 
-  public {{classname}} add{{nameInCamelCase}}Item({{{items.datatypeWithEnum}}} {{name}}Item) {
+  public {{classname}} add{{nameInCamelCase}}Item({{{items.datatype}}} {{name}}Item) {
     {{^required}}
     if (this.{{name}} == null) {
       this.{{name}} = {{{defaultValue}}};
@@ -75,7 +63,7 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#interfa
   {{/isListContainer}}
   {{#isMapContainer}}
 
-  public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatypeWithEnum}}} {{name}}Item) {
+  public {{classname}} put{{nameInCamelCase}}Item(String key, {{{items.datatype}}} {{name}}Item) {
     {{^required}}
     if (this.{{name}} == null) {
       this.{{name}} = {{{defaultValue}}};
@@ -105,12 +93,12 @@ public class {{classname}} {{#parent}}extends {{{parent}}} {{/parent}}{{#interfa
 {{#vendorExtensions.extraAnnotation}}
   {{{vendorExtensions.extraAnnotation}}}
 {{/vendorExtensions.extraAnnotation}}
-  public {{{datatypeWithEnum}}} {{getter}}() {
+  public {{{datatype}}} {{getter}}() {
     return {{name}};
   }
   {{^isReadOnly}}
 
-  public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
+  public void {{setter}}({{{datatype}}} {{name}}) {
     this.{{name}} = {{name}};
   }
   {{/isReadOnly}}

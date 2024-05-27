@@ -13,7 +13,7 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
       * @var string[]
       */
     protected static array $swaggerTypes = [{{#vars}}
-        '{{name}}' => '{{{datatypeWithEnum}}}'{{#hasMore}},{{/hasMore}}{{/vars}}
+        '{{name}}' => '{{{datatype}}}'{{#hasMore}},{{/hasMore}}{{/vars}}
     ];
 
     /**
@@ -72,20 +72,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
     {
         return {{#parentSchema}}parent::getters() + {{/parentSchema}}self::$getters;
     }
-    {{#vars}}{{#isEnum}}{{#allowableValues}}{{#enumVars}}
-    const {{enumName}}_{{{name}}} = {{{value}}};{{/enumVars}}{{/allowableValues}}{{/isEnum}}{{/vars}}{{#vars}}{{#isEnum}}
-
-    /**
-     * Gets allowable values of the enum
-     * @return string[]
-     */
-    public function {{getter}}AllowableValues(): array
-    {
-        return [{{#allowableValues}}{{#enumVars}}
-            self::{{enumName}}_{{{name}}},{{^@last}}{{/@last}}{{/enumVars}}{{/allowableValues}}
-        ];
-    }
-    {{/isEnum}}{{/vars}}
     {{^parentSchema}}
 
     /**
@@ -136,18 +122,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
             $invalid_properties[] = "'{{name}}' can't be null";
         }
         {{/required}}
-        {{#isEnum}}
-        {{^isContainer}}
-        $allowed_values = $this->{{getter}}AllowableValues();
-        if (!is_null($this->container['{{name}}']) && !in_array($this->container['{{name}}'], $allowed_values, true)) {
-            $invalid_properties[] = sprintf(
-                "invalid value for '{{name}}', must be one of '%s'",
-                implode("', '", $allowed_values)
-            );
-        }
-
-        {{/isContainer}}
-        {{/isEnum}}
         {{#hasValidation}}
         {{#maxLength}}
         if ({{^required}}!is_null($this->container['{{name}}']) && {{/required}}(mb_strlen($this->container['{{name}}']) > {{maxLength}})) {
@@ -225,29 +199,6 @@ class {{classname}} {{#parentSchema}}extends {{{parent}}}{{#interfaceModels}}{{#
      */
     public function {{setter}}(?{{baseType}} ${{name}}): static
     {
-        {{#isEnum}}
-        $allowed_values = $this->{{getter}}AllowableValues();
-        {{^isContainer}}
-        if ({{^required}}!is_null(${{name}}) && {{/required}}!in_array(${{{name}}}, $allowed_values, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value for '{{name}}', must be one of '%s'",
-                    implode("', '", $allowed_values)
-                )
-            );
-        }
-        {{/isContainer}}
-        {{#isContainer}}
-        if ({{^required}}!is_null(${{name}}) && {{/required}}array_diff(${{{name}}}, $allowed_values)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    "Invalid value for '{{name}}', must be one of '%s'",
-                    implode("', '", $allowed_values)
-                )
-            );
-        }
-        {{/isContainer}}
-        {{/isEnum}}
         {{#hasValidation}}
         {{#maxLength}}
         if ({{^required}}!is_null(${{name}}) && {{/required}}(mb_strlen(${{name}}) > {{maxLength}})) {

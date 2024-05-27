@@ -12,7 +12,7 @@ import java.util.Objects;
 {{>interface}}
 {{/isComposedModel}}
 {{^isComposedModel}}
-{{#is this 'enum'}}{{>modelEnum}}{{/is}}{{#isNot this 'enum'}}{{>pojo}}{{/isNot}}
+{{>pojo}}
 {{/isComposedModel}}
 {{/model}}
 {{/models}}
